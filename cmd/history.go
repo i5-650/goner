@@ -1,6 +1,3 @@
-/*
-Copyright © 2025 NAME HERE <EMAIL ADDRESS>
-*/
 package cmd
 
 import (
@@ -51,6 +48,7 @@ func listHistory(imageRef string) {
 		log.Fatalf("Error reading layers: %v", err)
 	}
 
+	var totalCompressed int64
 	layerIndex := 0
 	for i, h := range cfgFile.History {
 		marker := " "
@@ -69,11 +67,13 @@ func listHistory(imageRef string) {
 			if layerIndex < len(layers) {
 				digest, _ := layers[layerIndex].Digest()
 				size, _ := layers[layerIndex].Size()
+				totalCompressed += size
 				fmt.Printf("\t↳ Layer %d %s (%.2f MB)\n", layerIndex+1, digest, float64(size)/(1024*1024))
 			}
 			layerIndex++
 		}
 	}
+	fmt.Printf("Total size (compressed): %.2f MB\n", float64(totalCompressed)/(1024*1024))
 }
 
 func prettifyCommand(cmd string) string {

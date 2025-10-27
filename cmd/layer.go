@@ -1,6 +1,3 @@
-/*
-Copyright © 2025 NAME HERE <EMAIL ADDRESS>
-*/
 package cmd
 
 import (
@@ -39,23 +36,18 @@ func listLayers(imageRef string) {
 		log.Fatalf("Failed to retrieve image: %v", err)
 	}
 
-	cfgFile, err := img.ConfigFile()
-	if err != nil {
-		log.Fatalf("Failed to retrieve config file: %v", err)
-	}
-
 	layers, err := img.Layers()
 	if err != nil {
 		log.Fatalf("Error reading layers: %v", err)
 	}
-
-	fmt.Printf("%v\n", len(layers))
-	fmt.Printf("%v\n", len(cfgFile.History))
+	var totalCompressed int64
 
 	fmt.Printf("Image %s contains %d layers:\n", ref.Name(), len(layers))
 	for i, layer := range layers {
 		digest, _ := layer.Digest()
 		size, _ := layer.Size()
-		fmt.Printf("  • Layer %d : %s (%.2f Mo)\n", i+1, digest.String(), float64(size)/(1024*1024))
+		totalCompressed += size
+		fmt.Printf("  • Layer %d : %s (%.2f MB)\n", i+1, digest.String(), float64(size)/(1024*1024))
 	}
+	fmt.Printf("Total size (compressed): %.2f MB\n", float64(totalCompressed)/(1024*1024))
 }
